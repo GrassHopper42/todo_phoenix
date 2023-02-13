@@ -14,7 +14,11 @@
     </form>
   </header>
   <section style="display: block;">
-    <input id="toggle-all" class="toggle-all" type="checkbox" />
+    <%= if Enum.count(Enum.filter(@todos, &(&1.status == 0))) == 0 do %>
+      <input id="toggle-all" class="toggle-all" type="checkbox" phx-click="complete-all" checked />
+    <% else %>
+      <input id="toggle-all" class="toggle-all" type="checkbox" phx-click="complete-all" />
+    <% end %>
     <label for="toggle-all">전체완료</label>
     <ul class="todo-list">
       <%= for todo <- @todos do %>
@@ -48,19 +52,24 @@
     </ul>
   </section>
   <footer class="footer" style="display: block;">
-    <span class="todo-count">남은 할일: <strong>1</strong></span>
+    <span class="todo-count">
+      남은 할일: 
+      <strong>
+        <%= Enum.count(Enum.filter(@todos, &(&1.status != 1))) %>
+      </strong>
+    </span>
     <ul class="filters">
       <li>
-        <a href="#/" class="selected">전체</a>
+        <%= live_patch "All", to: Routes.live_path(@socket, LiveViewTodosWeb.TodoLive, %{filter_by: "all"}) %>
       </li>
       <li>
-        <a href="#/active">진행중</a>
+        <%= live_patch "Active", to: Routes.live_path(@socket, LiveViewTodosWeb.TodoLive, %{filter_by: "active"}) %>
       </li>
       <li>
-        <a href="#/completed">완료</a>
+        <%= live_patch "Completed", to: Routes.live_path(@socket, LiveViewTodosWeb.TodoLive, %{filter_by: "completed"}) %>
       </li>
     </ul>
-    <button class="clear-completed" style="display: block;">
+    <button class="clear-completed" style="display: block;" phx-click="clear-completed">
       완료된 항목 삭제
     </button>
   </footer>

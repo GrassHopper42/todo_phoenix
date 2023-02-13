@@ -56,6 +56,38 @@ defmodule LiveViewTodosWeb.TodoLive do
     {:noreply, assign(socket, todos: todos)}
   end
 
+  @impl true
+  def handle_params(params, _url, socket) do
+    todos = Todo.list_todos()
+
+    case params["filter_by"] do
+      "completed" ->
+        completed = Enum.filter(todos, &(&1.status == 1))
+        {:noreply, assign(socket, todos: completed)}
+
+      "active" ->
+        active = Enum.filter(todos, &(&1.status == 0))
+        {:noreply, assign(socket, todos: active)}
+
+      _ ->
+        {:noreply, assign(socket, todos: todos)}
+    end
+  end
+
+  @impl true
+  def handle_event("clear-completed", _data, socket) do
+    Todo.clear_completed()
+    todos = Todo.list_todos()
+    {:noreply, assign(socket, todos: todos)}
+  end
+
+  @impl true
+  def handle_event("complete-all", _data, socket) do
+    Todo.complete_all()
+    todos = Todo.list_todos()
+    {:noreply, assign(socket, todos: todos)}
+  end
+
   def checked?(todo) do
     not is_nil(todo.status) and todo.status > 0
   end

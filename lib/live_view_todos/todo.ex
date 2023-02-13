@@ -101,4 +101,16 @@ defmodule LiveViewTodos.Todo do
     |> changeset(%{status: 2})
     |> Repo.update()
   end
+
+  def complete_all do
+    Repo.update_all(
+      from(t in Todo, where: t.status == 0),
+      set: [status: 1]
+    )
+  end
+
+  def clear_completed do
+    completed_todos = from(t in Todo, where: t.status == 1)
+    Repo.update_all(completed_todos, [set: [status: 2]])
+  end
 end
