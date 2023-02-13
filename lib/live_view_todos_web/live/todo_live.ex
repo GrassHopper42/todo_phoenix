@@ -7,7 +7,7 @@ defmodule LiveViewTodosWeb.TodoLive do
   @impl true
   def mount(_params, _session, socket) do
     if connected?(socket), do: LiveViewTodosWeb.Endpoint.subscribe(@topic)
-    {:ok, assign(socket, todos: Todo.list_todos())}
+    {:ok, assign(socket, todos: Todo.list_todos(), editing: nil)}
   end
 
   @impl true
@@ -32,6 +32,21 @@ defmodule LiveViewTodosWeb.TodoLive do
   def handle_event("delete", data, socket) do
     Todo.delete_todo(Map.get(data, "id"))
     socket = assign(socket, todos: Todo.list_todos(), active: %Todo{})
+    LiveViewTodosWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("edit-todo", data, socket) do
+    {:noreply, assign(socket, editing: String.to_integer(Map.get(data, "id")))}
+  end
+
+  @impl true
+  def handle_event("update-todo", %{"id" => todo_id, "content" => content}, socket) do
+    current_todo = Todo.get_todo!(todo_id)
+    Todo.update_todo(current_todo, %{content: content})
+    todos = Todo.list_todos()
+    socket = assign(socket, todos: todos, editing: nil)
     LiveViewTodosWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
     {:noreply, socket}
   end

@@ -35,4 +35,23 @@ defmodule LiveViewTodosWeb.TodoLiveTest do
     updated_todo = Todo.get_todo!(todo.id)
     assert updated_todo.status == 2
   end
+
+  test "edit todo", %{conn: conn} do
+    {:ok, todo} = Todo.create_todo(%{"content" => "Learn Elixir"})
+
+    {:ok, view, _html} = live(conn, "/")
+
+    assert render_click(view, "edit-todo", %{"id" => Integer.to_string(todo.id)}) =~ "<form phx-submit=\"update-todo\" id=\"form-update\">"
+  end
+
+  test "update an todo", %{conn: conn} do
+    {:ok, todo} = Todo.create_todo(%{"content" => "Learn Elixir"})
+
+    {:ok, view, _html} = live(conn, "/")
+
+    assert render_submit(view, "update-todo", %{"id" => todo.id, "content" => "Learn more Elixir"}) =~ "Learn more Elixir"
+
+    updated_todo = Todo.get_todo!(todo.id)
+    assert updated_todo.content == "Learn more Elixir"
+  end
 end

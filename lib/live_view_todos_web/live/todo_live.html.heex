@@ -18,17 +18,32 @@
     <label for="toggle-all">전체완료</label>
     <ul class="todo-list">
       <%= for todo <- @todos do %>
-        <li data-id={todo.id} class={completed?(todo)}>
-          <div class="view">
-            <%= if checked?(todo) do %>
-              <input class="toggle" type="checkbox" phx-value-id={todo.id} phx-click="toggle" checked />
-            <% else %>
-              <input class="toggle" type="checkbox" phx-value-id={todo.id} phx-click="toggle" />
-            <% end %>
-            <label><%= todo.content %></label>
-            <button class="destroy" phx-click="delete" phx-value-id={todo.id}></button>
-          </div>
-        </li>
+        <%= if todo.id == @editing do %>
+          <form phx-submit="update-todo" id="form-update">
+            <input
+              id="update_todo"
+              class="new-todo"
+              type="text"
+              name="content"
+              required="required"
+              value={todo.content}
+              phx-hook="FocusInputItem"
+              />
+            <input type="hidden" name="id" value={todo.id} />
+          </form>
+        <% else %>
+          <li data-id={todo.id} class={completed?(todo)}>
+            <div class="view">
+              <%= if checked?(todo) do %>
+                <input class="toggle" type="checkbox" phx-value-id={todo.id} phx-click="toggle" checked />
+              <% else %>
+                <input class="toggle" type="checkbox" phx-value-id={todo.id} phx-click="toggle" />
+              <% end %>
+              <label phx-click="edit-todo" phx-value-id={todo.id}><%= todo.content %></label>
+              <button class="destroy" phx-click="delete" phx-value-id={todo.id}></button>
+            </div>
+          </li>
+        <% end %>
       <% end %>
     </ul>
   </section>
