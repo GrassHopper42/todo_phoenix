@@ -19,40 +19,21 @@ defmodule LiveViewTodosWeb.TodoLive do
   end
 
   @impl true
-  def handle_event("toggle", data, socket) do
-    status = if Map.has_key?(data, "value"), do: 1, else: 0
-    todo = Todo.get_todo!(Map.get(data, "id"))
-    Todo.update_todo(todo, %{id: todo.id, status: status})
-    socket = assign(socket, todos: Todo.list_todos(), active: %Todo{})
-    LiveViewTodosWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_event("delete", data, socket) do
-    Todo.delete_todo(Map.get(data, "id"))
-    socket = assign(socket, todos: Todo.list_todos(), active: %Todo{})
-    LiveViewTodosWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_event("edit-todo", data, socket) do
-    {:noreply, assign(socket, editing: String.to_integer(Map.get(data, "id")))}
-  end
-
-  @impl true
-  def handle_event("update-todo", %{"id" => todo_id, "content" => content}, socket) do
-    current_todo = Todo.get_todo!(todo_id)
-    Todo.update_todo(current_todo, %{content: content})
+  def handle_event("clear-completed", _data, socket) do
+    Todo.clear_completed()
     todos = Todo.list_todos()
-    socket = assign(socket, todos: todos, editing: nil)
-    LiveViewTodosWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
-    {:noreply, socket}
+    {:noreply, assign(socket, todos: todos)}
   end
 
   @impl true
-  def handle_info(%{event: "update", payoad: %{todos: todos}}, socket) do
+  def handle_event("complete-all", _data, socket) do
+    Todo.complete_all()
+    todos = Todo.list_todos()
+    {:noreply, assign(socket, todos: todos)}
+  end
+
+  @impl true
+  def handle_info(%{event: "update", payload: %{todos: todos}}, socket) do
     {:noreply, assign(socket, todos: todos)}
   end
 
@@ -74,25 +55,11 @@ defmodule LiveViewTodosWeb.TodoLive do
     end
   end
 
-  @impl true
-  def handle_event("clear-completed", _data, socket) do
-    Todo.clear_completed()
-    todos = Todo.list_todos()
-    {:noreply, assign(socket, todos: todos)}
+  def completed_all?(todos) do
+    Enum.all?(todos, &(&1.status != 0))
   end
 
-  @impl true
-  def handle_event("complete-all", _data, socket) do
-    Todo.complete_all()
-    todos = Todo.list_todos()
-    {:noreply, assign(socket, todos: todos)}
-  end
-
-  def checked?(todo) do
-    not is_nil(todo.status) and todo.status > 0
-  end
-
-  def completed?(todo) do
-    if not is_nil(todo.status) and todo.status > 0, do: "completed", else: ""
+  def count_todos() do
+    Todo.count_todos()
   end
 end

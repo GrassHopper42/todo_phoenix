@@ -65,7 +65,7 @@ defmodule LiveViewTodos.Todo do
   """
   def list_todos do
     Todo
-    |> order_by(desc: :inserted_at)
+    |> order_by(asc: :inserted_at)
     |> where([t], is_nil(t.status) or t.status != 2)
     |> Repo.all()
   end
@@ -100,6 +100,12 @@ defmodule LiveViewTodos.Todo do
     get_todo!(id)
     |> changeset(%{status: 2})
     |> Repo.update()
+  end
+
+  def count_todos do
+    Todo
+    |> where([t], is_nil(t.status) or t.status == 0)
+    |> Repo.aggregate(:count, :id)
   end
 
   def complete_all do
