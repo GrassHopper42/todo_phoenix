@@ -1,6 +1,7 @@
 defmodule LiveViewTodos.Todo do
   use Ecto.Schema
   import Ecto.Changeset
+  import Ecto.Query
   alias LiveViewTodos.Repo
   alias __MODULE__
 
@@ -63,7 +64,10 @@ defmodule LiveViewTodos.Todo do
 
   """
   def list_todos do
-    Repo.all(Todo)
+    Todo
+    |> order_by(desc: :inserted_at)
+    |> where([t], is_nil(t.status) or t.status != 2)
+    |> Repo.all()
   end
 
   @doc """
