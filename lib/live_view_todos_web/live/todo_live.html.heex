@@ -1,0 +1,52 @@
+<section class="todoapp">
+  <header class="header">
+    <h1>Todos</h1>
+    <form phx-submit="create" id="form">
+      <input
+        id="new-todo"
+        class="new-todo"
+        type="text"
+        name="content"
+        placeholder="What needs to be done?"
+        autofocus=""
+        required="required"
+        />
+    </form>
+  </header>
+  <section style="display: block;">
+    <input id="toggle-all" class="toggle-all" type="checkbox" />
+    <label for="toggle-all">전체완료</label>
+    <ul class="todo-list">
+      <%= for todo <- @todos do %>
+        <li data-id={todo.id} class={completed?(todo)}>
+          <div class="view">
+            <%= if checked?(todo) do %>
+              <input class="toggle" type="checkbox" phx-value-id={todo.id} phx-click="toggle" checked />
+            <% else %>
+              <input class="toggle" type="checkbox" phx-value-id={todo.id} phx-click="toggle" />
+            <% end %>
+            <label><%= todo.content %></label>
+            <button class="destroy" phx-click="delete" phx-value-id={todo.id}></button>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+  <footer class="footer" style="display: block;">
+    <span class="todo-count">남은 할일: <strong>1</strong></span>
+    <ul class="filters">
+      <li>
+        <a href="#/" class="selected">전체</a>
+      </li>
+      <li>
+        <a href="#/active">진행중</a>
+      </li>
+      <li>
+        <a href="#/completed">완료</a>
+      </li>
+    </ul>
+    <button class="clear-completed" style="display: block;">
+      완료된 항목 삭제
+    </button>
+  </footer>
+</section>
