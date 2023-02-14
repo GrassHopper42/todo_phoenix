@@ -19,10 +19,11 @@ defmodule LiveViewTodosWeb.TodoLiveTest do
     {:ok, todo2} = Todo.create_todo(%{"content" => "Learn Phoenix"})
 
     {:ok, view, _html} = live(conn, "/")
+
     view
     |> element("#todo-#{todo1.id}")
     |> render_click(%{"id" => todo1.id, "value" => 1})
-    |> (& assert &1 =~ "completed").()
+    |> (&assert(&1 =~ "completed")).()
 
     {:ok, view, _html} = live(conn, "/?filter_by=completed")
     assert render(view) =~ "Learn Elixir"
@@ -48,7 +49,7 @@ defmodule LiveViewTodosWeb.TodoLiveTest do
     view
     |> element("#todo-#{todo1.id}")
     |> render_click(%{"id" => todo1.id, "value" => 1})
-    |> (& assert &1 =~ "completed").()
+    |> (&assert(&1 =~ "completed")).()
 
     view = render_click(view, "clear-completed", %{})
     assert view =~ "Learn Phoenix"

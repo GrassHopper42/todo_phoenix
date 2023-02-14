@@ -4,6 +4,9 @@ defmodule LiveViewTodosWeb.TodoComponent do
 
   @topic "live"
 
+  attr(:todos, :list, default: [])
+  attr(:editing, :string, default: nil)
+
   def render(assigns) do
     ~H"""
     <ul class="todo-list">
@@ -63,7 +66,7 @@ defmodule LiveViewTodosWeb.TodoComponent do
     todo = Todo.get_todo!(Map.get(data, "id"))
     Todo.update_todo(todo, %{id: todo.id, status: status})
     socket = assign(socket, todos: Todo.list_todos(), active: %Todo{})
-    LiveViewTodosWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+    LiveViewTodosWeb.Endpoint.broadcast(@topic, "update", socket.assigns)
     {:noreply, socket}
   end
 
@@ -71,7 +74,7 @@ defmodule LiveViewTodosWeb.TodoComponent do
   def handle_event("delete", data, socket) do
     Todo.delete_todo(Map.get(data, "id"))
     socket = assign(socket, todos: Todo.list_todos(), active: %Todo{})
-    LiveViewTodosWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+    LiveViewTodosWeb.Endpoint.broadcast(@topic, "update", socket.assigns)
     {:noreply, socket}
   end
 
@@ -84,9 +87,8 @@ defmodule LiveViewTodosWeb.TodoComponent do
   def handle_event("update-todo", %{"id" => todo_id, "content" => content}, socket) do
     current_todo = Todo.get_todo!(todo_id)
     Todo.update_todo(current_todo, %{content: content})
-    todos = Todo.list_todos()
-    socket = assign(socket, todos: todos, editing: nil)
-    LiveViewTodosWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+    socket = assign(socket, todos: Todo.list_todos(), editing: nil)
+    LiveViewTodosWeb.Endpoint.broadcast(@topic, "update", socket.assigns)
     {:noreply, socket}
   end
 

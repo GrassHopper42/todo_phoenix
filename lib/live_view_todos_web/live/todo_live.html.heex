@@ -33,7 +33,7 @@
     <span class="todo-count">
       남은 할일: 
       <strong>
-        <%= count_todos() %>
+        <%= Enum.count(@todos, &(&1.status == 0)) %>
       </strong>
     </span>
     <ul class="filters">

@@ -14,22 +14,24 @@ defmodule LiveViewTodosWeb.TodoLive do
   def handle_event("create", %{"content" => content}, socket) do
     Todo.create_todo(%{content: content})
     socket = assign(socket, todos: Todo.list_todos(), active: %Todo{})
-    LiveViewTodosWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+    LiveViewTodosWeb.Endpoint.broadcast(@topic, "update", socket.assigns)
     {:noreply, socket}
   end
 
   @impl true
   def handle_event("clear-completed", _data, socket) do
     Todo.clear_completed()
-    todos = Todo.list_todos()
-    {:noreply, assign(socket, todos: todos)}
+    socket = assign(socket, todos: Todo.list_todos(), active: %Todo{})
+    LiveViewTodosWeb.Endpoint.broadcast(@topic, "update", socket.assigns)
+    {:noreply, socket}
   end
 
   @impl true
   def handle_event("complete-all", _data, socket) do
     Todo.complete_all()
-    todos = Todo.list_todos()
-    {:noreply, assign(socket, todos: todos)}
+    socket = assign(socket, todos: Todo.list_todos(), active: %Todo{})
+    LiveViewTodosWeb.Endpoint.broadcast(@topic, "update", socket.assigns)
+    {:noreply, socket}
   end
 
   @impl true
